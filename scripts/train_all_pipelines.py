@@ -25,16 +25,17 @@ def train_earthquake():
     print("\n" + "=" * 55)
     print("  TRAINING: Earthquake Risk Model")
     print("=" * 55)
-    df = pd.read_csv('datasets/database.csv')
-    df = df.dropna(subset=['Latitude', 'Longitude', 'Depth', 'Magnitude'])
+    # The user provided a new dataset for these models: earthquake_data_tsunami.csv
+    # It contains earthquakes with magnitude >= 6.5
+    df = pd.read_csv('datasets/earthquake_data_tsunami.csv')
+    df = df.dropna(subset=['magnitude', 'cdi', 'mmi', 'sig', 'nst', 'dmin', 'gap', 'depth', 'latitude', 'longitude'])
     
-    # Features: location + depth
-    features = ['Latitude', 'Longitude', 'Depth']
+    # Feature set requested by user
+    features = ['magnitude', 'cdi', 'mmi', 'sig', 'nst', 'dmin', 'gap', 'depth', 'latitude', 'longitude']
     X = df[features].copy()
     
-    # Target: Magnitude >= 6.0 (this dataset has all recorded seismic events,
-    # so ~31% are >=6.0 — a well-balanced meaningful binary task)
-    y = (df['Magnitude'] >= 6.0).astype(int)
+    # Target: Magnitude >= 7.0 for Severe classification natively mapped to High Risk
+    y = (df['magnitude'] >= 7.0).astype(int)
     print(f"  Dataset size: {len(df)} | Class balance — High Risk: {y.sum()} ({y.mean()*100:.1f}%)")
 
     X_train, X_test, y_train, y_test = train_test_split(
@@ -118,16 +119,43 @@ def train_landslide():
     df = pd.read_csv('datasets/landslides.csv')
     df['population'] = pd.to_numeric(df['population'], errors='coerce').fillna(0)
     df['distance']   = pd.to_numeric(df['distance'],   errors='coerce').fillna(0)
-    df['fatalities'] = pd.to_numeric(df['fatalities'], errors='coerce').fillna(0)
-    df['injuries']   = pd.to_numeric(df['injuries'],   errors='coerce').fillna(0)
     df = df.dropna(subset=['latitude', 'longitude'])
 
     features = ['latitude', 'longitude', 'population', 'distance']
-    X = df[features].copy()
+    
+    # The dataset only contains positive occurrences. 
+    # Create the positive samples:
+    X_pos = df[features].copy()
+    y_pos = np.ones(len(X_pos), dtype=int)
+    
+    # Synthesize negative samples (areas where landslides did NOT occur)
+    np.random.seed(42)
+    n_samples = len(X_pos)
+    
+    # Synthetic safe zones
+    syn_lat = np.random.uniform(-90, 90, n_samples)
+    syn_lon = np.random.uniform(-180, 180, n_samples)
+    syn_pop = np.random.exponential(50000, n_samples) # random population
+    syn_dist = np.random.uniform(50, 500, n_samples)  # further distance from faults = safer
+    
+    X_neg = pd.DataFrame({
+        'latitude': syn_lat,
+        'longitude': syn_lon,
+        'population': syn_pop,
+        'distance': syn_dist
+    })
+    y_neg = np.zeros(n_samples, dtype=int)
+    
+    # Combine
+    X = pd.concat([X_pos, X_neg], ignore_index=True)
+    y = np.concatenate([y_pos, y_neg])
+    
+    # Shuffle
+    idx = np.random.permutation(len(X))
+    X = X.iloc[idx].reset_index(drop=True)
+    y = y[idx]
 
-    # Target: landslide caused fatalities OR injuries (meaningful real-world risk)
-    y = ((df['fatalities'] > 0) | (df['injuries'] > 0)).astype(int)
-    print(f"  Dataset size: {len(df)} | Casualties: {y.sum()} ({y.mean()*100:.1f}%)")
+    print(f"  Combined Dataset size: {len(X)} | Landslide Risk Target Balance: {y.sum()} / {len(y)}")
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42, stratify=y
@@ -149,7 +177,7 @@ def train_landslide():
     preds = model.predict(X_test_s)
     acc = accuracy_score(y_test, preds)
     print(f"  Test Accuracy : {acc*100:.2f}%")
-    print(classification_report(y_test, preds, target_names=['No Casualties', 'Casualties']))
+    print(classification_report(y_test, preds, target_names=['Safe', 'Landslide Risk']))
 
     joblib.dump(model,    'models/landslide_model.pkl')
     joblib.dump(scaler,   'models/landslide_scaler.pkl')

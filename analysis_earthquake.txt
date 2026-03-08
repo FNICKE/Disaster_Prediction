@@ -1,0 +1,31 @@
+Loading earthquake_data_tsunami.csv...
+Shape: (782, 13)
+
+Columns:
+Index(['magnitude', 'cdi', 'mmi', 'sig', 'nst', 'dmin', 'gap', 'depth',
+       'latitude', 'longitude', 'Year', 'Month', 'tsunami'],
+      dtype='str')
+
+Summary Statistics:
+        magnitude  ...     tsunami
+count  782.000000  ...  782.000000
+mean     6.941125  ...    0.388747
+std      0.445514  ...    0.487778
+min      6.500000  ...    0.000000
+25%      6.600000  ...    0.000000
+50%      6.800000  ...    0.000000
+75%      7.100000  ...    1.000000
+max      9.100000  ...    1.000000
+
+[8 rows x 13 columns]
+
+Target 'tsunami' distribution:
+tsunami
+0    478
+1    304
+Name: count, dtype: int64
+
+Magnitude distribution (>6.0):
+magnitude
+True    782
+Name: count, dtype: int64

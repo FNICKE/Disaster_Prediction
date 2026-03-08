@@ -1,0 +1,41 @@
+Loading landslides...
+Shape: (1693, 23)
+
+Columns:
+Index(['id', 'date', 'time', 'continent_code', 'country_name', 'country_code',
+       'state/province', 'population', 'city/town', 'distance',
+       'location_description', 'latitude', 'longitude', 'geolocation',
+       'hazard_type', 'landslide_type', 'landslide_size', 'trigger',
+       'storm_name', 'injuries', 'fatalities', 'source_name', 'source_link'],
+      dtype='str')
+
+Target Distribution:
+0    1416
+1     276
+Name: count, dtype: int64
+
+Summary statistics of features for Positive targets (Casualties = 1)
+         latitude  ...    distance
+count  276.000000  ...  276.000000
+mean    13.296825  ...    6.952540
+std     10.340932  ...    8.881314
+min    -10.125800  ...    0.000030
+25%      6.272800  ...    1.277152
+50%     14.068750  ...    3.708955
+75%     18.475550  ...    8.848572
+max     45.162300  ...   61.753060
+
+[8 rows x 4 columns]
+
+Summary statistics of features for Negative targets (Casualties = 0)
+          latitude  ...     distance
+count  1416.000000  ...  1416.000000
+mean     30.526112  ...     7.992302
+std      13.112859  ...     9.442088
+min      -9.388400  ...     0.001780
+25%      15.601400  ...     2.068495
+50%      37.332100  ...     4.750665
+75%      40.109800  ...    10.072592
+max      45.425700  ...    74.460970
+
+[8 rows x 4 columns]
