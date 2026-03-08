@@ -18,12 +18,16 @@ The system currently supports risk prediction for:
 disaster_prediction_system/
 │
 ├── backend/            # Flask REST API handling ML predictions
+│   ├── app.py          # Main application and routing
+│   └── auth.py         # JWT authentication & user management
 ├── frontend/           # React + Vite application (UI)
+│   └── src/pages/      # Login, Register, Dashboard & Prediction pages
 ├── models/             # Pre-trained ML models and scalers (.pkl files)
 ├── datasets/           # Raw and processed datasets (.csv)
 ├── scripts/            # Scripts for training models
 ├── utils/              # Utility functions (preprocessing, etc.)
 ├── requirements.txt    # Python dependencies
+├── users.db            # SQLite database for storing registered users
 └── start_project.bat   # Automated startup script
 ```
 
@@ -38,6 +42,7 @@ The easiest way to start the system is using the provided batch script.
    - One for the **Flask Backend API** (running on port 5000 by default).
    - One for the **React Frontend** (running on port 5173).
 3. Open your browser and go to: `http://localhost:5173`
+4. Register a new account, and sign in to access the Dashboard.
 
 ### Option 2: Manual Start
 
@@ -80,6 +85,10 @@ This script will parse the `.csv` files from the `datasets/` directory, train th
 
 The system exposes a REST API that the frontend communicates with. 
 
+### **Authentication**
+- **Register:** `POST /api/register` (Requires JSON `{"username": "...", "password": "..."}`)
+- **Login:** `POST /api/login` (Returns a JWT token on success)
+
 ### **1. Health Check**
 Check if the API is running and which models are fully loaded.
 - **Endpoint:** `GET /health`
@@ -116,6 +125,7 @@ Get a prediction for a specific disaster type.
 ---
 
 ## 🛠️ Technology Stack
-- **Frontend:** React, Vite, Tailwind CSS (for modern UI with dark mode support)
+- **Frontend:** React, Vite, Tailwind CSS, Lucide React (for premium dashboard UI)
 - **Backend:** Python, Flask, Flask-CORS
+- **Authentication:** PyJWT (JSON Web Tokens), SQLite, Werkzeug Security
 - **Machine Learning:** scikit-learn, pandas, numpy, joblib
